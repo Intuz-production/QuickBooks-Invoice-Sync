@@ -1,92 +1,72 @@
-# Intuz — Your automation partner, one workflow at a time.
+# Intuz — Your automation partner, one workflow at a time. 
 
-<p align="center">
-  <picture>
-    <img alt="Banner Image" src="https://github.com/user-attachments/assets/210f97fc-0fce-404a-b647-7dfe1302cd37" />
-  </picture>
-</p>
+<p align="center"> <picture> <img alt="Banner Image" src="https://github.com/user-attachments/assets/210f97fc-0fce-404a-b647-7dfe1302cd37" /> </picture> </p> 
 
-# Hyper-personalize email outreach with AI, Gmail, and Google Sheets
-
-[Intuz](https://www.intuz.com/) provides a complete and automated solution for hyper-personalized email outreach.
-
-It powerfully combines AI with Gmail and Google Sheets, using specific keywords and prospect data to automatically craft unique, compelling email content that boosts engagement and secures more replies.
+Intuz helps organizations orchestrate AI, automation, and enterprise systems through scalable workflows. Our repository showcases proven implementations across healthcare, operations, customer support, document processing, sales, and back-office functions, enabling teams to accelerate automation initiatives without starting from scratch.
+# Automate real-time QuickBooks invoice sync to Google Sheets
 
 [N8N Creator](https://n8n.io/creators/intuz/) · [AI Development](https://www.intuz.com/ai/) · [Business Process Automation](https://www.intuz.com/workflow-automation-services/) · [For Custom Workflow Automation](https://www.intuz.com/get-started/)
 
----
+This n8n template from Intuz provides a complete and automated solution for real-time financial reporting.
 
-Instead of manually replying to every lead or inquiry, this template does the heavy lifting for you, ensuring every response is relevant, thoughtful, and timely.
+It instantly syncs new QuickBooks invoices to Google Sheets, using specific invoice data or keywords as triggers to ensure your financial records are always accurate and up-to-date.
 
-It reads each person’s unique inquiry, uses OpenAI to craft a perfectly tailored and human-like response, and sends it directly from your Gmail account. Ideal for sales, marketing, and customer support teams looking to boost engagement and save hours of manual work.
+It uses a webhook to capture every new or updated invoice and logs the essential details into a designated Google Sheet. Perfect for creating custom reports, data backups, or a real-time dashboard of your accounts receivable.
 
 ## Use Cases
 
-- **Sales Teams:** Instantly follow up with new leads from your website’s contact form with a personalized touch.
-- **Customer Support:** Provide initial, intelligent responses to support tickets, answering common questions or acknowledging receipt of a complex issue.
-- **Marketing Automation:** Nurture leads by responding to content downloads or webinar sign-ups with relevant, non-generic information.
-- **Founders & Solopreneurs:** Manage all incoming business inquiries, including partnerships, media, and other requests, efficiently without sacrificing quality.
+- **Financial Reporting:** Create a simple, shareable Google Sheet for team members who don’t have QuickBooks access.
+- **Data Backup:** Maintain a secure, independent log of all your invoices outside of the QuickBooks ecosystem.
+- **Custom Dashboards:** Use the Google Sheet as a data source for tools like Google Data Studio or Grafana to build custom financial dashboards.
+- **Auditing:** Easily track the history and status of all invoices in a simple, searchable spreadsheet format.
 
-## How It Works
+## How it Works
 
-### 1. Trigger the Flow (Manual)
+1. **Instant Webhook Trigger:** The workflow activates the moment an invoice is created or updated in QuickBooks. The QuickBooks webhook sends a notification to n8n, kicking off the process in real time.
 
-Start the automation whenever you’re ready to process a new batch of inquiries from your sheet.
+2. **Fetch Full Invoice Details:** The initial webhook notification only contains the invoice ID. This node uses that ID to make a call back to the QuickBooks API and retrieve the complete invoice data, including customer name, due date, and more.
 
-### 2. Fetch Inquiries from Google Sheets
+3. **Format Key Data:** A simple Code node cleans up the data fetched from QuickBooks. It extracts only the fields you need—ID, Domain, Customer Name, and Due Date—and structures them perfectly for the next step.
 
-The workflow connects to your specified Google Sheet and reads each row. It pulls the contact’s First Name, Email ID, Inquiry Intent (e.g., “Demo Request,” “Pricing Inquiry”), and the full text of their Original Inquiry.
+4. **Append or Update in Google Sheets:** The final node connects to your Google Sheet and uses the powerful “Append or Update” operation.
+    - If the ID of the invoice doesn’t exist in the sheet, it adds a new row.
+    - If the ID already exists, it updates the existing row with the latest information.
 
-### 3. Sync Your Signature
-
-Before writing the email, an HTTP Request node dynamically fetches your display name from your Gmail account settings. This ensures the signature in the generated email (`Thanks, {{Your Name}}`) is always accurate.
-
-### 4. Craft a Hyper-Personalized Reply with AI
-
-It uses this context to generate a high-quality, professional, and friendly email reply in HTML format.
-
-For example:
-
-- If the intent is **“Technical Support,”** the AI will generate a helpful, empathetic response addressing the technical issue.
-- If the intent is **“Partnership Proposal,”** it will draft a professional reply acknowledging the proposal and outlining the next steps.
-
-### 5. Send via Gmail
-
-The final node takes the AI-generated message, adds a relevant subject line (e.g., “Re: Your Demo Request”), and sends it directly to the contact’s email address from your connected Gmail account.
-
-This process loops for every single row in your Google Sheet, turning a list of names into a series of meaningful conversations.
+This ensures your Google Sheet is always a perfect mirror of your QuickBooks invoice data, preventing duplicates and keeping everything current.
 
 ## Setup Instructions
 
-To get this workflow running, you’ll need to configure a few things:
+For this workflow to run successfully, follow these setup steps:
 
 ### 1. Credentials
 
-- **Google:** Connect your Google account via OAuth2 and ensure you have enabled access for Google Sheets, Google Drive, and Gmail.
-- **OpenAI:** Add your OpenAI API key as a credential.
+- **QuickBooks:** Connect your QuickBooks account credentials to n8n.
+- **Google:** Connect your Google account using OAuth2 credentials. Ensure the Google Sheets and Google Drive APIs are enabled.
 
-### 2. Google Sheet Setup
+### 2. QuickBooks Webhook Configuration
 
-Create a Google Sheet with the following exact column headers:
+- Activate the workflow. Copy the Production URL from the Webhook node.
+- In your Intuit Developer Portal, go to the webhooks section for your app.
+- Paste the URL and subscribe to Invoice events (e.g., Create, Update).
 
-- `First Name`
-- `Email ID`
-- `Inquiry Intent` — A short category like “Demo Request”, “Billing Issue”, etc.
-- `Original Inquiry` — The full text of the email or message you received.
+### 3. Google Sheet Setup
 
-### 3. Node Configuration
+- Create a Google Sheet for your invoice data.
+- Crucially, create the following headers in the first row of your sheet:
+  - ID
+  - Domain
+  - Customer Name
+  - Due Date
 
-- **Get row(s) in sheet:** Select your Google Sheet document and the specific sheet name.
-- **Message a model (OpenAI):** Choose your preferred OpenAI model, such as `gpt-4-turbo` or `gpt-3.5-turbo`.
+### 4. Node Configuration
 
-### 4. HTTP Request & Send Personalized Emails
+In the **Append or update row in sheet** node, select your Google Sheet document and the specific sheet name from the dropdown lists. The columns should map automatically if you’ve set up the headers correctly.
 
-These nodes should automatically use your configured Gmail credentials. No changes are typically needed.
+* **Website:** https://www.intuz.com/n8n-workflow-automation-templates/
+* **Email:** [getstarted@intuz.com](mailto:getstarted@intuz.com)
+* **LinkedIn:** https://www.linkedin.com/company/intuz/
+* **Get Started:** https://n8n.partnerlinks.io/intuz
 
-## Connect with us
+## For Custom Workflow Automation
 
-- **Website:** https://www.intuz.com/n8n-workflow-automation-templates/
-- **Email:** [getstarted@intuz.com](mailto:getstarted@intuz.com)
-- **LinkedIn:** https://www.linkedin.com/company/intuz/
-- **Get Started:** https://n8n.partnerlinks.io/intuz
-- **For Custom Workflow Automation:** https://www.intuz.com/get-started/
+[Click here - Get Started](https://www.intuz.com/get-started/)
